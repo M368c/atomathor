@@ -1,6 +1,8 @@
 import argparse
 import shared_state
 
+from pcb_comm import start_pcb_serial_thread
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -32,3 +34,5 @@ shared_state.SENSOR_TYPE = args.sensor_type
 shared_state.TURBO_ADDRESS = args.turbo_address
 shared_state.TURBO_PORT = args.turbo_port
 shared_state.DISABLE_TURBO = args.disable_turbo
+
+start_pcb_serial_thread()

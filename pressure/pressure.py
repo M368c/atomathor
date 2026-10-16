@@ -5,7 +5,11 @@ sampler = Sampler()
 
 
 def get_pressure(line):
-    [voltage, _, _] = parse_input_line(line.strip())
+    data = parse_input_line(line.strip())
+    if data == None:
+        return
+
+    [voltage, _, _] = data
     if voltage == None:
         print(f"Invalid voltage: {line}")
         return
