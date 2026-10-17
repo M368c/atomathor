@@ -38,8 +38,8 @@ calculator = Calculator(config)
 
 def serial_write(addr, msgID, msg):
     data = f"@{addr} {msgID} {msg}"
-    crc = calculator.checksum(data.encode())
-    ser.println(f"\n{data}|{crc}\n")
+    crc = calculator.checksum(data.encode("ascii"))
+    ser.write(f"\n{data}|{crc}\n".encode("ascii"))
 
 
 def serial_read(pressure_addr="pr"):
