@@ -1,12 +1,12 @@
 import argparse
 import shared_state
 
-from pcb_comm import start_pcb_serial_thread
+from pcb_comm import start_pcb_serial_thread, serial_write
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-i", "--input", default="/dev/ttyUSB0", type=str, help="Serial input"
+        "-i", "--input", default="/dev/ttyACM0", type=str, help="Serial input"
     )
     parser.add_argument(
         "-t",
@@ -35,4 +35,4 @@ shared_state.TURBO_ADDRESS = args.turbo_address
 shared_state.TURBO_PORT = args.turbo_port
 shared_state.DISABLE_TURBO = args.disable_turbo
 
-start_pcb_serial_thread()
+start_pcb_serial_thread(args.input)

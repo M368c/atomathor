@@ -4,23 +4,9 @@ import threading
 from crc import Calculator, Configuration
 
 from pressure.pressure import get_pressure
-from shared_state import INPUT
 
-# Request: \n@{addr, 2B} {msgID, 2B} {msg}|{crc}\n
-# Response: \n!{msgID, 2B} {msg}|{crc}\n
-
-try:
-    ser = serial.Serial(INPUT, 9600, timeout=1, bytesize=8, parity="N", stopbits=1)
-    ser.reset_input_buffer()
-except serial.SerialException as e:
-    print(f"Serial error: {e}")
-    sys.exit(1)
-except FileNotFoundError:
-    print("Port not found. Check device connection.")
-    sys.exit(1)
-except PermissionError:
-    print("Permission denied!")
-    sys.exit(1)
+# Request: @{addr, 2B} {msgID, 2B} {msg}|{crc}\n
+# Response: !{msgID, 2B} {msg}|{crc}\n
 
 
 # CRC configuration
@@ -36,10 +22,33 @@ config = Configuration(
 calculator = Calculator(config)
 
 
+def start_pcb_serial_thread(port):
+    global ser
+
+    try:
+        ser = serial.Serial(port, 9600, timeout=1, bytesize=8, parity="N", stopbits=1)
+        ser.reset_input_buffer()
+    except serial.SerialException as e:
+        print(f"Main serial: {e}")
+        sys.exit(1)
+    except FileNotFoundError:
+        print("Main serial: Port not found. Check device connection.")
+        sys.exit(1)
+    except PermissionError:
+        print("Main serial: Permission denied!")
+        sys.exit(1)
+
+    # Start reading thread
+    thread = threading.Thread(target=serial_read)
+    thread.start()
+    print(f"Thread started, reading from serial port: {port}")
+
+
 def serial_write(addr, msgID, msg):
     data = f"@{addr} {msgID} {msg}"
     crc = calculator.checksum(data.encode("ascii"))
-    ser.write(f"\n{data}|{crc}\n".encode("ascii"))
+    print(f"Request: {data}|{crc:x}")
+    ser.write(f"{data}|{crc:x}\n".encode("ascii"))
 
 
 def serial_read(pressure_addr="pr"):
@@ -48,9 +57,17 @@ def serial_read(pressure_addr="pr"):
         if not line:
             continue
 
+        print(line)
         payload, _, crc_text = line.rpartition(b"|")
-        if not calculator.verify(payload, crc_text):
-            print("Message is not valid!")
+
+        try:
+            crc = int(crc_text.strip(), 16)
+
+            if not calculator.verify(payload, crc):
+                print("Crc is not valid!")
+                continue
+        except ValueError:
+            print("Could not parse crc!")
             continue
 
         try:
@@ -59,7 +76,7 @@ def serial_read(pressure_addr="pr"):
             print(f"Could not decode line: {line}")
             continue
 
-        print(line)
+        print(f"Data: {line}")
 
         if len(line) == 0:
             continue
@@ -68,21 +85,12 @@ def serial_read(pressure_addr="pr"):
             print("Message is not from pcb!")
             continue
 
-        addr = line[1:3]
-        msg_id = line[4:6]
-        msg = line[7:]
+        msg_id = line[1:3]
+        msg = line[4:]
         msg = msg.split("|", 1)[0]
-        print(addr, msg_id, msg)
 
-        if addr == pressure_addr:
+        if msg_id == pressure_addr:
             get_pressure(msg)
         else:
-            print("Address is not valid")
+            print("Message doesn't have a valid id!")
             continue
-
-
-def start_pcb_serial_thread():
-    # Start reading thread
-    thread = threading.Thread(target=serial_read)
-    thread.start()
-    print(f"Thread started, reading from serial port: {INPUT}")
