@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Black: format all",
+      "type": "shell",
+      "command": "black ${workspaceFolder}",
+      "problemMatcher": []
+    }
+  ]
+}
