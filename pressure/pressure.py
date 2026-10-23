@@ -9,12 +9,14 @@ def get_pressure(line):
     if data == None:
         return
 
-    [voltage, _, _] = data
-    if voltage == None:
+    [_, voltage_1, _, voltage_2] = data
+    if voltage_1 == None or voltage_2 == None:
         print(f"Invalid voltage: {line}")
         return
 
-    pressure = calculate_pressure(voltage, SENSOR_TYPE)
+    # Add calculating voltage for both sensors
+
+    pressure = calculate_pressure(voltage_1, SENSOR_TYPE)
 
     timestamp = calculate_timestamp()
     print(timestamp, pressure)
@@ -22,9 +24,10 @@ def get_pressure(line):
 
 
 def parse_input_line(line):
-    pressure_voltage = None
-    voltage = None
-    current = None
+    voltage_1 = None
+    id_1 = None
+    voltage_2 = None
+    id_2 = None
 
     for part in line.split(";"):
         try:
@@ -34,30 +37,38 @@ def parse_input_line(line):
             print("Invalid input")
             return None
 
-        if key == "pv":
-            pressure_voltage = value
-        elif key == "v":
-            voltage = value
-        elif key == "c":
-            current = value
+        if key == "V1":
+            voltage_1 = value
+        elif key == "id1":
+            id_1 = value
+        elif key == "V2":
+            voltage_2 = value
+        elif key == "id2":
+            id_2 = value
         else:
             print("Invalid key")
 
-    if pressure_voltage is not None and voltage is not None and current is not None:
+    if (
+        voltage_1 is not None
+        and id_1 is not None
+        and voltage_2 is not None
+        and id_2 is not None
+    ):
         pass
     else:
         print("Missing keys")
         return None
 
     try:
-        pressure_voltage = float(pressure_voltage)
-        voltage = float(voltage)
-        current = float(current)
+        voltage_1 = float(voltage_1)
+        id_1 = float(id_1)
+        voltage_2 = float(voltage_2)
+        id_2 = float(id_2)
     except:
         print("Invadid pressure data")
         return None
 
-    return [pressure_voltage, voltage, current]
+    return [id_1, voltage_1, id_2, voltage_2]
 
 
 def calculate_pressure(voltage: float, sensor_type: str):
@@ -74,5 +85,5 @@ def calculate_pressure_tpr250(voltage: float):
 
 def calculate_pressure_pkr361(voltage: float):
     MUL = 1.667
-    D = 8.458
+    D = 11.33  # mbar
     return 10 ** ((voltage * 2.0 / 1000.0) * MUL - D)
