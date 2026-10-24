@@ -1,13 +1,16 @@
 import sys
 import serial
 import threading
+import queue
+from timeit import default_timer as timer
 from crc import Calculator, Configuration
-
-from pressure.pressure import get_pressure
 
 # Request: @{addr, 2B} {msgID, 2B} {msg}|{crc}\n
 # Response: !{msgID, 2B} {msg}|{crc}\n
 
+commands = queue.Queue()  # writing (tuples)
+data = queue.Queue()  # reading
+reading_timeout = 1  # seconds
 
 # CRC configuration
 config = Configuration(
@@ -24,7 +27,6 @@ calculator = Calculator(config)
 
 def start_pcb_serial_thread(port):
     global ser
-
     try:
         ser = serial.Serial(port, 9600, timeout=1, bytesize=8, parity="N", stopbits=1)
         ser.reset_input_buffer()
@@ -38,10 +40,20 @@ def start_pcb_serial_thread(port):
         print("Main serial: Permission denied!")
         sys.exit(1)
 
-    # Start reading thread
-    thread = threading.Thread(target=serial_read)
+    # Start serial thread
+    thread = threading.Thread(target=worker, args=[reading_timeout], daemon=True)
     thread.start()
     print(f"Thread started, reading from serial port: {port}")
+
+
+def worker(timeout):
+    while True:
+        addr, msg_id, msg = commands.get()
+
+        serial_write(addr, msg_id, msg)
+
+        start = timer()
+        serial_read(msg_id, start, timeout)
 
 
 def serial_write(addr, msgID, msg):
@@ -51,8 +63,8 @@ def serial_write(addr, msgID, msg):
     ser.write(f"{data}|{crc:x}\n".encode("ascii"))
 
 
-def serial_read(pressure_addr="pr"):
-    while True:
+def serial_read(requested_id, start, timeout):
+    while timer() - start < timeout:
         line = ser.readline()
         if not line:
             continue
@@ -89,8 +101,8 @@ def serial_read(pressure_addr="pr"):
         msg = line[4:]
         msg = msg.split("|", 1)[0]
 
-        if msg_id == pressure_addr:
-            get_pressure(msg)
+        if msg_id == requested_id:
+            data.put(msg)
         else:
             print("Message doesn't have a valid id!")
             continue

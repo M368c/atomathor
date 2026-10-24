@@ -1,7 +1,6 @@
 import argparse
 import shared_state
-
-from pcb_comm import start_pcb_serial_thread, serial_write
+from pcb_comm import start_pcb_serial_thread
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
