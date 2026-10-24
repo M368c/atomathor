@@ -30,11 +30,7 @@ if __name__ == "__main__":
     parser.add_argument("--disable_turbo", default=False, type=bool)
     args = parser.parse_args()
 
-shared_state.INPUT = args.input
 shared_state.SENSOR_TYPE = args.sensor_type
-shared_state.TURBO_ADDRESS = args.turbo_address
-shared_state.TURBO_PORT = args.turbo_port
-shared_state.DISABLE_TURBO = args.disable_turbo
 
 start_pcb_serial_thread(args.input)
 

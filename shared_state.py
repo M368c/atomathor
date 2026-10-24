@@ -1,12 +1,7 @@
 import time
 from pressure.sampler import Sampler
 
-# Args in variables
-INPUT = None
 SENSOR_TYPE = None
-TURBO_ADDRESS = None
-TURBO_PORT = None
-DISABLE_TURBO = None
 
 sampler = Sampler()
 
