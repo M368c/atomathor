@@ -2,6 +2,7 @@ import argparse
 import shared_state
 import ui.app
 
+from mock_serial import MockSerial
 from pcb_comm import start_pcb_serial_thread
 
 if __name__ == "__main__":
@@ -27,12 +28,18 @@ if __name__ == "__main__":
     parser.add_argument(
         "-p", "--turbo_port", default="/dev/ttyACM0", type=str, help="X3 serial port"
     )
+    parser.add_argument("--no_device", default=False, type=bool)
     parser.add_argument("--disable_turbo", default=False, type=bool)
     args = parser.parse_args()
 
 shared_state.SENSOR_TYPE = args.sensor_type
 
-start_pcb_serial_thread(args.input)
+if args.no_device:
+    device = MockSerial()
+    device.open()
+    start_pcb_serial_thread(device.port)
+else:
+    start_pcb_serial_thread(args.input)
 
 # Create gui
 ui.app.create_qui()
