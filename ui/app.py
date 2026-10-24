@@ -8,10 +8,10 @@ def create_qui():
     # Fonts
     with dpg.font_registry():
         default_font = dpg.add_font(
-            "fonts/proggyvectordotted/ProggyVector-Regular.otf", 20
+            "./ui/fonts/proggyvectordotted/ProggyVector-Regular.otf", 20
         )
         second_font = dpg.add_font(
-            "fonts/proggyvectordotted/ProggyVector-Dotted.otf", 20
+            "./ui/fonts/proggyvectordotted/ProggyVector-Dotted.otf", 20
         )
 
     dpg.bind_font(default_font)
