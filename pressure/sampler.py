@@ -74,7 +74,7 @@ class Sampler:
         while self.since_last_avg > self.config.avg_size:
             start = len(self.rt_samples) - self.since_last_avg
             samples = self.rt_samples[start : start + self.config.avg_size]
-            self.samples.append([downsample(samples)])
+            self.samples.append(downsample(samples))
             self.since_last_avg -= self.config.avg_step
 
     def trim_samples(self):
@@ -93,4 +93,4 @@ class Sampler:
 def downsample(samples):
     ts = samples[len(samples) // 2][0]
     aval = sum(samples[i][1] for i in range(0, len(samples))) / len(samples)
-    return ts, aval
+    return [ts, aval]

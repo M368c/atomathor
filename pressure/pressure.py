@@ -1,7 +1,5 @@
-from pressure.sampler import Sampler
+from shared_state import sampler
 from shared_state import calculate_timestamp, SENSOR_TYPE
-
-sampler = Sampler()
 
 
 def get_pressure(line):

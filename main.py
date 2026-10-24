@@ -1,5 +1,7 @@
 import argparse
 import shared_state
+import ui.app
+
 from pcb_comm import start_pcb_serial_thread
 
 if __name__ == "__main__":
@@ -35,3 +37,8 @@ shared_state.TURBO_PORT = args.turbo_port
 shared_state.DISABLE_TURBO = args.disable_turbo
 
 start_pcb_serial_thread(args.input)
+
+# Create gui
+ui.app.create_qui()
+
+print("Exiting")

@@ -2,13 +2,15 @@ import sys
 import serial
 import threading
 import queue
+
 from timeit import default_timer as timer
 from crc import Calculator, Configuration
+from pressure.pressure import get_pressure
 
 # Request: @{addr, 2B} {msgID, 2B} {msg}|{crc}\n
 # Response: !{msgID, 2B} {msg}|{crc}\n
 
-commands = queue.Queue()  # writing (tuples)
+commands = queue.Queue(maxsize=3)  # writing (tuples)
 data = queue.Queue()  # reading
 reading_timeout = 1  # seconds
 
@@ -59,7 +61,7 @@ def worker(timeout):
 def serial_write(addr, msgID, msg):
     data = f"@{addr} {msgID} {msg}"
     crc = calculator.checksum(data.encode("ascii"))
-    print(f"Request: {data}|{crc:x}")
+    # print(f"Request: {data}|{crc:x}")
     ser.write(f"{data}|{crc:x}\n".encode("ascii"))
 
 
@@ -103,6 +105,7 @@ def serial_read(requested_id, start, timeout):
 
         if msg_id == requested_id:
             data.put(msg)
+            get_pressure(msg)
         else:
             print("Message doesn't have a valid id!")
             continue
