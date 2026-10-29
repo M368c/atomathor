@@ -3,7 +3,6 @@ import dearpygui.dearpygui as dpg
 
 from ui.components.plots import plot, update_plot
 from shared_state import pressure_sampler
-from pcb_comm import commands
 
 timestamp = []
 pressure = []
@@ -12,10 +11,6 @@ samples_counter = 0
 
 def update_pressure_plot():
     global samples_counter
-    try:
-        commands.put(("V1", "pr", "sns"), block=False)  # Write command to serial
-    except queue.Full:
-        pass
 
     new_samples = pressure_sampler.samples[samples_counter:]
     if new_samples:

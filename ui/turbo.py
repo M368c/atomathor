@@ -3,7 +3,7 @@ import dearpygui.dearpygui as dpg
 
 from ui.components.plots import plot, update_plot
 from shared_state import pump_speed_sampler
-from turbo_pump.turbo_comm import commands, user_commands
+from turbo_pump.turbo_comm import user_commands
 from turbo_pump.x3.parameters import Parameters
 from turbo_pump.x3.data_type import DataType, encode_data
 
@@ -14,10 +14,6 @@ samples_counter = 0
 
 def update_speed():
     global samples_counter
-    try:
-        commands.put((Parameters.ActualSpd, "=?", "read", None), block=False)
-    except queue.Full:
-        pass
 
     new_samples = pump_speed_sampler.samples[samples_counter:]
     if new_samples:
