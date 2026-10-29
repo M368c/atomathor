@@ -4,6 +4,7 @@ import ui.app
 
 from mock_serial import MockSerial
 from pcb_comm import start_pcb_serial_thread
+from turbo_pump.turbo_comm import start_turbo_serial_thread
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -40,6 +41,13 @@ if args.no_device:
     start_pcb_serial_thread(device.port)
 else:
     start_pcb_serial_thread(args.input)
+
+if not args.disable_turbo:
+    start_turbo_serial_thread(args.turbo_port, args.turbo_address)
+else:
+    turbo_device = MockSerial()
+    turbo_device.open()
+    start_turbo_serial_thread(turbo_device.port, args.turbo_address)
 
 # Create gui
 ui.app.create_qui()

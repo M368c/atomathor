@@ -1,5 +1,6 @@
 import dearpygui.dearpygui as dpg
-import ui.pressure
+from ui import pressure, turbo
+from turbo_pump.turbo_comm import data
 
 
 def create_qui():
@@ -31,7 +32,9 @@ def create_qui():
     dpg.maximize_viewport()
 
     while dpg.is_dearpygui_running():
-        ui.pressure.update_pressure_plot()  # Updating plot
+        pressure.update_pressure_plot()  # Updating plot
+        turbo.update_speed()
+        handle_serial_response()
         dpg.render_dearpygui_frame()
 
     dpg.destroy_context()
@@ -40,4 +43,15 @@ def create_qui():
 def create_main_window():
     with dpg.window(tag="main", label="main"):
         dpg.add_text("")
-        ui.pressure.build()
+        pressure.build()
+        turbo.build()
+
+
+def handle_serial_response():
+    try:
+        response = data.get_nowait()  # (parameter, data, caller)
+        caller = response[2]
+        response_data = response[1]
+        dpg.set_value(caller, response_data)
+    except:
+        pass

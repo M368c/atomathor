@@ -1,9 +1,10 @@
 import time
-from pressure.sampler import Sampler
+from sampler import Sampler
 
 SENSOR_TYPE = None
 
-sampler = Sampler()
+pressure_sampler = Sampler()
+pump_speed_sampler = Sampler()
 
 # Timestamp
 start_timestamp = time.time_ns() // 1000  # microseconds

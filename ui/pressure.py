@@ -2,7 +2,7 @@ import queue
 import dearpygui.dearpygui as dpg
 
 from ui.components.plots import plot, update_plot
-from shared_state import sampler
+from shared_state import pressure_sampler
 from pcb_comm import commands
 
 timestamp = []
@@ -17,14 +17,16 @@ def update_pressure_plot():
     except queue.Full:
         pass
 
-    new_samples = sampler.samples[samples_counter:]
+    new_samples = pressure_sampler.samples[samples_counter:]
     if new_samples:
         for sample in new_samples:
             timestamp.append(sample[0] // 1000000)  # seconds
             pressure.append(sample[1])
         samples_counter += len(new_samples)
         dpg.set_value("current_pressure", pressure[-1])
-        update_plot(timestamp, pressure)  # Update plot
+        update_plot(
+            timestamp, pressure, "p.time", "pressure", "pressure_data"
+        )  # Update plot
 
 
 def on_combo_change(sender, data):
@@ -41,4 +43,4 @@ def build():
             callback=on_combo_change,
             default_value="mbar",
         )
-    plot(timestamp, pressure, 300)
+    plot(timestamp, pressure, "p.time", "pressure", "pressure_data", 300)
