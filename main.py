@@ -1,3 +1,4 @@
+import time
 import queue
 import argparse
 import threading
@@ -62,6 +63,7 @@ def worker():
             turbo_commands.put((Parameters.ActualSpd, "=?", "read", None), block=False)
         except queue.Full:
             pass
+        time.sleep(0.2)
 
 
 thread = threading.Thread(target=worker, daemon=True)
