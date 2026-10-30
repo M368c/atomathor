@@ -56,7 +56,9 @@ def worker():
 
         serial_write(addr, msg_id, msg)
 
-        serial_read()
+        is_read = serial_read()
+        if not is_read and msg_id == "cm":
+            data.put(("cm", "Error: no response"))
 
 
 def serial_write(addr, msgID, msg):
@@ -108,3 +110,5 @@ def serial_read():
         data.put((msg_id, msg))
     else:
         print("Message doesn't have a valid id!")
+
+    return True
