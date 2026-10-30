@@ -3,15 +3,13 @@ import serial
 import threading
 import queue
 
-from timeit import default_timer as timer
 from turbo_pump.x3.frame import encode, decode
 from shared_state import pump_speed_sampler, calculate_timestamp
 from turbo_pump.x3.parameters import Parameters
 
-commands = queue.Queue(maxsize=3)  # writing (tuples)
+commands = queue.Queue()  # writing (tuples)
 user_commands = queue.Queue()
 data = queue.Queue()  # reading
-reading_timeout = 1  # seconds
 
 
 def start_turbo_serial_thread(port, address):
@@ -29,14 +27,12 @@ def start_turbo_serial_thread(port, address):
         print("Turbo serial: Permission denied!")
         sys.exit(1)
 
-    thread = threading.Thread(
-        target=worker, args=(reading_timeout, address), daemon=True
-    )
+    thread = threading.Thread(target=worker, args=[address], daemon=True)
     thread.start()
     print(f"Turbo thread started, reading from serial port: {port}")
 
 
-def worker(timeout, address):
+def worker(address):
     while True:
         if not user_commands.empty():
             parameter, command, action, caller = user_commands.get_nowait()
@@ -45,9 +41,8 @@ def worker(timeout, address):
 
         serial_write(address, parameter, command, action)
 
-        start = timer()
-        is_read = serial_read(start, timeout, caller)
-        if not is_read:
+        is_read = serial_read(caller)
+        if not is_read and caller != None:
             data.put((False, "Error: no response", caller))
 
 
@@ -57,19 +52,18 @@ def serial_write(address, parameter: Parameters, data, action):
         ser.write(frame)
 
 
-def serial_read(start, timeout, caller):
-    while timer() - start < timeout:
-        line = ser.read_until(b"\r")
-        if not line:
-            continue
+def serial_read(caller):
+    line = ser.read_until(b"\r")
+    if not line:
+        return
 
-        address, parameter_value, parameter_data = decode(line)
+    address, parameter_value, parameter_data = decode(line)
 
-        parameter = Parameters(int(parameter_value))
-        data.put((parameter.name, parameter_data, caller))
-        # print(f"Turbo pump response: {parameter.name}, {parameter_data}")
+    parameter = Parameters(int(parameter_value))
+    data.put((parameter.name, parameter_data, caller))
+    # print(f"Turbo pump response: {parameter.name}, {parameter_data}")
 
-        if parameter == Parameters.ActualSpd:
-            pump_speed_sampler.push(calculate_timestamp(), float(parameter_data))
+    if parameter == Parameters.ActualSpd:
+        pump_speed_sampler.push(calculate_timestamp(), float(parameter_data))
 
-        return True
+    return True

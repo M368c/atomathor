@@ -3,16 +3,15 @@ import serial
 import threading
 import queue
 
-from timeit import default_timer as timer
 from crc import Calculator, Configuration
 from pressure.pressure import get_pressure
 
 # Request: @{addr, 2B} {msgID, 2B} {msg}|{crc}\n
 # Response: !{msgID, 2B} {msg}|{crc}\n
 
-commands = queue.Queue(maxsize=3)  # writing (tuples)
+commands = queue.Queue()  # writing (tuples)
+user_commands = queue.Queue()
 data = queue.Queue()  # reading
-reading_timeout = 1  # seconds
 
 # CRC configuration
 config = Configuration(
@@ -43,19 +42,21 @@ def start_pcb_serial_thread(port):
         sys.exit(1)
 
     # Start serial thread
-    thread = threading.Thread(target=worker, args=[reading_timeout], daemon=True)
+    thread = threading.Thread(target=worker, daemon=True)
     thread.start()
     print(f"Thread started, reading from serial port: {port}")
 
 
-def worker(timeout):
+def worker():
     while True:
-        addr, msg_id, msg = commands.get()
+        if not user_commands.empty():
+            addr, msg_id, msg = user_commands.get()
+        else:
+            addr, msg_id, msg = commands.get()
 
         serial_write(addr, msg_id, msg)
 
-        start = timer()
-        serial_read(msg_id, start, timeout)
+        serial_read()
 
 
 def serial_write(addr, msgID, msg):
@@ -65,47 +66,45 @@ def serial_write(addr, msgID, msg):
     ser.write(f"{data}|{crc:x}\n".encode("ascii"))
 
 
-def serial_read(requested_id, start, timeout):
-    while timer() - start < timeout:
-        line = ser.readline()
-        if not line:
-            continue
+def serial_read():
+    line = ser.readline()
+    if not line:
+        return
 
-        print(line)
-        payload, _, crc_text = line.rpartition(b"|")
+    print(line)
+    payload, _, crc_text = line.rpartition(b"|")
 
-        try:
-            crc = int(crc_text.strip(), 16)
+    try:
+        crc = int(crc_text.strip(), 16)
 
-            if not calculator.verify(payload, crc):
-                print("Crc is not valid!")
-                continue
-        except ValueError:
-            print("Could not parse crc!")
-            continue
+        if not calculator.verify(payload, crc):
+            print("Crc is not valid!")
+            return
+    except ValueError:
+        print("Could not parse crc!")
+        return
 
-        try:
-            line = line.decode("ascii").strip()
-        except:
-            print(f"Could not decode line: {line}")
-            continue
+    try:
+        line = line.decode("ascii").strip()
+    except:
+        print(f"Could not decode line: {line}")
+        return
 
-        print(f"Data: {line}")
+    # print(f"Data: {line}")
 
-        if len(line) == 0:
-            continue
+    if len(line) == 0:
+        return
 
-        if line[0] != "!":
-            print("Message is not from pcb!")
-            continue
+    if line[0] != "!":
+        print("Message is not from pcb!")
 
-        msg_id = line[1:3]
-        msg = line[4:]
-        msg = msg.split("|", 1)[0]
+    msg_id = line[1:3]
+    msg = line[4:]
+    msg = msg.split("|", 1)[0]
 
-        if msg_id == requested_id:
-            data.put(msg)
-            get_pressure(msg)
-        else:
-            print("Message doesn't have a valid id!")
-            continue
+    if msg_id == "pr":
+        get_pressure(msg)
+    elif msg_id == "cm":
+        data.put((msg_id, msg))
+    else:
+        print("Message doesn't have a valid id!")

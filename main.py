@@ -60,10 +60,13 @@ def worker():
     while True:
         try:
             pcb_commands.put(("V1", "pr", "sns"), block=False)
+        except queue.Full:
+            pass
+        try:
             turbo_commands.put((Parameters.ActualSpd, "=?", "read", None), block=False)
         except queue.Full:
             pass
-        time.sleep(0.2)
+        time.sleep(0.02)
 
 
 thread = threading.Thread(target=worker, daemon=True)
