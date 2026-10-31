@@ -21,7 +21,7 @@ def update_speed():
             timestamp.append(sample[0] // 1000000)  # seconds
             pump_speed.append(sample[1])
         samples_counter += len(new_samples)
-        dpg.set_value("current_speed", pump_speed[-1])
+        dpg.set_value("current_speed", round(pump_speed[-1], 2))
         update_plot(
             timestamp, pump_speed, "t.time", "speed", "speed_data"
         )  # Update plot
@@ -48,7 +48,8 @@ def stop_turbo():
 def build():
     dpg.add_text("Turbo speed")
     with dpg.group(horizontal=True):
-        dpg.add_text("--", tag="current_speed")
+        dpg.add_text(0.0, tag="current_speed")
+        dpg.add_text("rpm")
     plot(timestamp, pump_speed, "t.time", "speed", "speed_data", 300)
     dpg.add_button(label="Start turbo", callback=start_turbo)
     dpg.add_button(label="Stop turbo", callback=stop_turbo)

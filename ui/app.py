@@ -1,3 +1,4 @@
+import ui
 import dearpygui.dearpygui as dpg
 
 from ui import pressure, turbo
@@ -83,10 +84,21 @@ def open_cmd():
         dpg.add_text(tag="pcb_response")
 
 
+def toggle_full_view():
+    ui.components.plots.full_view = not ui.components.plots.full_view
+    if ui.components.plots.full_view == True:
+        dpg.set_item_label("full_view_button", "Show last data")
+    else:
+        dpg.set_item_label("full_view_button", "Show full view")
+
+
 def create_main_window():
     with dpg.window(tag="main", label="main"):
         dpg.add_text("")
         dpg.add_button(label="Open commands prompt", callback=open_cmd)
+        dpg.add_button(
+            label="Show last data", tag="full_view_button", callback=toggle_full_view
+        )
         pressure.build()
         turbo.build()
 
