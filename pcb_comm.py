@@ -5,6 +5,7 @@ import queue
 
 from crc import Calculator, Configuration
 from pressure.pressure import get_pressure
+from shared_state import DEBUG
 
 # Request: @{addr, 2B} {msgID, 2B} {msg}|{crc}\n
 # Response: !{msgID, 2B} {msg}|{crc}\n
@@ -73,7 +74,9 @@ def serial_read():
     if not line:
         return
 
-    print(line)
+    if DEBUG:
+        print(line)
+
     payload, _, crc_text = line.rpartition(b"|")
 
     try:
@@ -92,7 +95,8 @@ def serial_read():
         print(f"Could not decode line: {line}")
         return
 
-    # print(f"Data: {line}")
+    if DEBUG:
+        print(f"Data: {line}")
 
     if len(line) == 0:
         return

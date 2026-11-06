@@ -2,6 +2,7 @@ import time
 from sampler import Sampler
 
 SENSOR_TYPE = None
+DEBUG = None
 
 pressure_sampler = Sampler()
 pump_speed_sampler = Sampler()

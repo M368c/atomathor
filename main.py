@@ -36,10 +36,12 @@ if __name__ == "__main__":
         "-p", "--turbo_port", default="/dev/ttyACM0", type=str, help="X3 serial port"
     )
     parser.add_argument("--no_device", default=False, type=bool)
+    parser.add_argument("--debug", default=False, type=bool)
     parser.add_argument("--disable_turbo", default=False, type=bool)
     args = parser.parse_args()
 
 shared_state.SENSOR_TYPE = args.sensor_type
+shared_state.DEBUG = args.debug
 
 if args.no_device:
     device = MockSerial()
