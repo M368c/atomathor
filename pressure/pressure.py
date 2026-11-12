@@ -79,11 +79,11 @@ def calculate_pressure(voltage: float, sensor_type: str):
 
 
 def calculate_pressure_tpr250(voltage: float):
-    C = 2.5
-    return 10 ** ((voltage * 2.0 / 1000.0) - C)
+    C = 5.5  # mbar
+    return 10 ** (voltage - C)
 
 
 def calculate_pressure_pkr361(voltage: float):
     MUL = 1.667
     D = 11.33  # mbar
-    return 10 ** ((voltage * 2.0 / 1000.0) * MUL - D)
+    return 10 ** (voltage * MUL - D)
