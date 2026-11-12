@@ -18,14 +18,6 @@ if __name__ == "__main__":
         "-i", "--input", default="/dev/ttyACM0", type=str, help="Serial input"
     )
     parser.add_argument(
-        "-t",
-        "--sensor_type",
-        choices=["pkr361", "tpr250"],
-        default="tpr250",
-        type=str,
-        help="Vacuum sensor type",
-    )
-    parser.add_argument(
         "-a",
         "--turbo_address",
         default="001",
@@ -40,7 +32,6 @@ if __name__ == "__main__":
     parser.add_argument("--debug", default=False, type=bool)
     args = parser.parse_args()
 
-    state.SENSOR_TYPE = args.sensor_type
     state.DEBUG = args.debug
 
 if args.no_device:

@@ -2,7 +2,7 @@ import queue
 import dearpygui.dearpygui as dpg
 
 from ui.components.plots import plot, update_plot
-from shared_state import pressure_sampler
+from shared_state import pressure_sampler_1
 
 timestamp = []
 pressure = []
@@ -12,7 +12,7 @@ samples_counter = 0
 def update_pressure_plot():
     global samples_counter
 
-    new_samples = pressure_sampler.samples[samples_counter:]
+    new_samples = pressure_sampler_1.samples[samples_counter:]
     if new_samples:
         for sample in new_samples:
             timestamp.append(sample[0] // 1000000)  # seconds

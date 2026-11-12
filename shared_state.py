@@ -4,12 +4,12 @@ from sampler import Sampler
 
 class AppState:
     def __init__(self):
-        self.SENSOR_TYPE = None
         self.DEBUG = None
 
 
 state = AppState()
-pressure_sampler = Sampler()
+pressure_sampler_1 = Sampler()
+pressure_sampler_2 = Sampler()
 pump_speed_sampler = Sampler()
 
 # Timestamp

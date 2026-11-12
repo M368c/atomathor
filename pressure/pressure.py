@@ -1,4 +1,4 @@
-from shared_state import pressure_sampler
+from shared_state import pressure_sampler_1, pressure_sampler_2
 from shared_state import calculate_timestamp
 from shared_state import state
 
@@ -13,14 +13,14 @@ def get_pressure(line):
         print(f"Invalid voltage: {line}")
         return
 
-    # Add calculating voltage for both sensors
-
-    pressure = calculate_pressure(voltage_1, state.SENSOR_TYPE)
+    pressure_1 = calculate_pressure(voltage_1, "tpr250") / 1000
+    pressure_2 = calculate_pressure(voltage_2, "pkr361") / 1000
 
     timestamp = calculate_timestamp()
     if state.DEBUG:
-        print(timestamp, pressure)
-    pressure_sampler.push(timestamp, pressure)
+        print(timestamp, pressure_1, pressure_2)
+    pressure_sampler_1.push(timestamp, pressure_1)
+    pressure_sampler_2.push(timestamp, pressure_2)
 
 
 def parse_input_line(line):
