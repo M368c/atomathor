@@ -1,6 +1,6 @@
 from shared_state import pressure_sampler
 from shared_state import calculate_timestamp
-from shared_state import SENSOR_TYPE, DEBUG
+from shared_state import state
 
 
 def get_pressure(line):
@@ -15,10 +15,10 @@ def get_pressure(line):
 
     # Add calculating voltage for both sensors
 
-    pressure = calculate_pressure(voltage_1, SENSOR_TYPE)
+    pressure = calculate_pressure(voltage_1, state.SENSOR_TYPE)
 
     timestamp = calculate_timestamp()
-    if DEBUG:
+    if state.DEBUG:
         print(timestamp, pressure)
     pressure_sampler.push(timestamp, pressure)
 

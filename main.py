@@ -2,9 +2,9 @@ import time
 import queue
 import argparse
 import threading
-import shared_state
 import ui.app
 
+from shared_state import state
 from mock_serial import MockSerial
 from pcb_comm import start_pcb_serial_thread
 from turbo_pump.turbo_comm import start_turbo_serial_thread
@@ -36,12 +36,12 @@ if __name__ == "__main__":
         "-p", "--turbo_port", default="/dev/ttyACM0", type=str, help="X3 serial port"
     )
     parser.add_argument("--no_device", default=False, type=bool)
-    parser.add_argument("--debug", default=False, type=bool)
     parser.add_argument("--disable_turbo", default=False, type=bool)
+    parser.add_argument("--debug", default=False, type=bool)
     args = parser.parse_args()
 
-shared_state.SENSOR_TYPE = args.sensor_type
-shared_state.DEBUG = args.debug
+    state.SENSOR_TYPE = args.sensor_type
+    state.DEBUG = args.debug
 
 if args.no_device:
     device = MockSerial()

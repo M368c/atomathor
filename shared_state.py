@@ -1,9 +1,14 @@
 import time
 from sampler import Sampler
 
-SENSOR_TYPE = None
-DEBUG = None
 
+class AppState:
+    def __init__(self):
+        self.SENSOR_TYPE = None
+        self.DEBUG = None
+
+
+state = AppState()
 pressure_sampler = Sampler()
 pump_speed_sampler = Sampler()
 

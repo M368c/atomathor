@@ -3,6 +3,7 @@ import serial
 import threading
 import queue
 
+from shared_state import state
 from turbo_pump.x3.frame import encode, decode
 from shared_state import pump_speed_sampler, calculate_timestamp
 from turbo_pump.x3.parameters import Parameters
@@ -48,6 +49,10 @@ def worker(address):
 
 def serial_write(address, parameter: Parameters, data, action):
     frame = encode(address, parameter, data, action)
+
+    if state.DEBUG:
+        print(f"Turbo request: {frame}")
+
     if frame != None:
         ser.write(frame)
 
@@ -61,7 +66,9 @@ def serial_read(caller):
 
     parameter = Parameters(int(parameter_value))
     data.put((parameter.name, parameter_data, caller))
-    # print(f"Turbo pump response: {parameter.name}, {parameter_data}")
+
+    if state.DEBUG:
+        print(f"Turbo pump response: {parameter.name}, {parameter_data}")
 
     if parameter == Parameters.ActualSpd:
         pump_speed_sampler.push(calculate_timestamp(), float(parameter_data))
