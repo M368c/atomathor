@@ -29,7 +29,7 @@ if __name__ == "__main__":
         "-a",
         "--turbo_address",
         default="001",
-        type=int,
+        type=str,
         help="X3 address of turbo pump",
     )
     parser.add_argument(
