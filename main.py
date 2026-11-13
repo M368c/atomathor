@@ -52,7 +52,7 @@ else:
 def worker():
     while True:
         try:
-            pcb_commands.put(("V1", "pr", "sns"), block=False)
+            pcb_commands.put(("V1", "pr", "snsRaw"), block=False)
         except queue.Full:
             pass
         try:
