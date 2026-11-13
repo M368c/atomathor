@@ -25,7 +25,7 @@ if __name__ == "__main__":
         help="X3 address of turbo pump",
     )
     parser.add_argument(
-        "-p", "--turbo_port", default="/dev/ttyACM0", type=str, help="X3 serial port"
+        "-p", "--turbo_port", default="/dev/ttyACM1", type=str, help="X3 serial port"
     )
     parser.add_argument("--no_device", default=False, type=bool)
     parser.add_argument("--disable_turbo", default=False, type=bool)
