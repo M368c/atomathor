@@ -23,7 +23,9 @@ def encode(address, parameter, data, action):
 
     data_length = f"{len(data):02d}"
 
-    msg = f"{address}{function}0{parameter.value}{data_length}{data}"
+    parameter_number = f"{parameter.value:03d}"
+
+    msg = f"{address}{function}0{parameter_number}{data_length}{data}"
     checksum_value = sum(msg.encode("ascii")) % 256
     checksum = f"{checksum_value:03d}"
     frame = f"{msg}{checksum}\r\n".encode("ascii")
@@ -51,15 +53,18 @@ def decode(line):
         print("Invalid data length!")
         return None
 
-    data_end = line[10 : 10 + data_length]
+    data_end = 10 + data_length
     data = line[10:data_end]
 
     try:
-        checksum = int(line[data_end:-1])
+        checksum = int(line[data_end:])
     except ValueError:
         print("Invalid checksum!")
 
-    calculated_checksum = sum(line[:data_end].encode("ascii")) % 256
+    try:
+        calculated_checksum = sum(int(c) for c in line[:data_end]) % 256
+    except:
+        None
 
     if calculated_checksum != checksum:
         print("Checksum is not correct!")
