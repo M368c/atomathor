@@ -9,19 +9,14 @@ from turbo_pump.x3.data_type import DataType, encode_data
 
 timestamp = []
 pump_speed = []
-samples_counter = 0
 
 
 def update_speed():
-    global samples_counter
-
-    new_samples = pump_speed_sampler.samples[samples_counter:]
-    if new_samples:
-        for sample in new_samples:
-            timestamp.append(sample[0] // 1000000)  # seconds
-            pump_speed.append(sample[1])
-        samples_counter += len(new_samples)
-        dpg.set_value("current_speed", round(pump_speed[-1], 2))
+    if pump_speed_sampler.samples:
+        new_samples = pump_speed_sampler.samples[-1]
+        timestamp.append(new_samples[0] / 1000000)  # seconds
+        pump_speed.append(new_samples[1])
+        dpg.set_value("current_speed", new_samples[1])
         update_plot(
             timestamp, pump_speed, "t.time", "speed", "speed_data"
         )  # Update plot
