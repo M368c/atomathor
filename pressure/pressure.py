@@ -13,8 +13,8 @@ def get_pressure(line):
         print(f"Invalid voltage: {line}")
         return
 
-    pressure_1 = calculate_pressure(voltage_1, "tpr250") / 1000
-    pressure_2 = calculate_pressure(voltage_2, "pkr361") / 1000
+    pressure_1 = calculate_pressure(voltage_1, "tpr250")
+    pressure_2 = calculate_pressure(voltage_2, "pkr361")
 
     timestamp = calculate_timestamp()
     if state.DEBUG:
