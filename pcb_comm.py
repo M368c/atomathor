@@ -53,7 +53,10 @@ def worker():
         if not user_commands.empty():
             addr, msg_id, msg = user_commands.get()
         else:
-            addr, msg_id, msg = commands.get()
+            try:
+                addr, msg_id, msg = commands.get(block=False)
+            except queue.Empty:
+                continue
 
         serial_write(addr, msg_id, msg)
 
